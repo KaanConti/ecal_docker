@@ -1,0 +1,41 @@
+name: Communication Test
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  test_communication:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v2
+
+      - name: Set up Docker
+        uses: docker/setup-docker@v1
+
+      - name: Build Runtime Image
+        working-directory: ./ecal_runtime_container
+        run: docker build -t ecal-runtime .
+
+      - name: Build Publisher Image
+        working-directory: ./pub_container
+        run: docker build --build-arg host_group_name=publisher -t publisher-image .
+
+      - name: Build Subscriber Image
+        working-directory: ./sub_container
+        run: docker build --build-arg host_group_name=subscriber -t subscriber-image .
+
+      - name: Start Publisher Container
+        run: docker run --rm -it --ipc=host --network=host --pid=host publisher-image . 
+
+
+      - name: Start Subscriber Container
+        run: docker run --rm -it --ipc=host --network=host --pid=host subscriber-image .
+
+      - name: Test Communication
+        run: |
+          docker exec subscriber-container sh -c "echo 'Waiting for message from publisher...'"
+          docker exec subscriber-container sh -c "ecal_sub --nospinner -t topic_name -g subscriber"
