@@ -22,11 +22,11 @@ jobs:
 
       - name: Build Publisher Image
         working-directory: ./pub_container
-        run: docker build --build-arg host_group_name=publisher -t publisher-image .
+        run: docker build --build-arg host_group_name=conti -t publisher-image .
 
       - name: Build Subscriber Image
         working-directory: ./sub_container
-        run: docker build --build-arg host_group_name=subscriber -t subscriber-image .
+        run: docker build --build-arg host_group_name=conti -t subscriber-image .
 
       - name: Start Publisher Container
         run: docker run --rm -it --ipc=host --network=host --pid=host publisher-image .
