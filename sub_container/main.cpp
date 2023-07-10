@@ -29,4 +29,5 @@ int main(int argc, char** argv)
 
     // finalize eCAL API
     eCAL::Finalize();
+
 }
