@@ -3,7 +3,7 @@ name: Communication Test
 on:
   push:
     branches:
-      - main
+      - master
 
 jobs:
   test_communication:
