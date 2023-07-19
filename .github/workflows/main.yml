@@ -28,22 +28,10 @@ jobs:
         working-directory: ./sub_container
         run: docker build --build-arg host_group_name=conti --rm -t subscriber-image .
 
-      - name: Start Publisher- und Subscriber-Container with same Hostname
+      - name: Test Publisher- und Subscriber-Container with same Hostname
         run: |
           docker run --rm  --name publisher-container --ipc=host --network=host --pid=host -h=host1 publisher-image
           docker run --rm  --name subscriber-container --ipc=host --network=host --pid=host -h=host1 subscriber-image
-      - name: Start Subscriber-Container T1
-        run: docker run --rm  --name subscriber-container --ipc=host --network=host --pid=host -h=host1 subscriber-image
-
-      - name: Start eCAL-Runtime-Container
-        run: docker run --rm -it --name ecal-runtime --ipc=host --network=host --pid=host -h=host1 ecal-runtime
-      - name: Test Ping Container via eCAL-Runtime-Container
-        run: |
-          docker exec runtime-container ping -c 5 publisher-container
-          docker exec runtime-container ping -c 5 subscriber-container
-
-      - name: Test Same Hostname
-        run: |
           sleep 3
           logs=$(docker logs subscriber-container)
           if [[ -n "$logs" ]]; then
@@ -52,6 +40,14 @@ jobs:
             echo "Test1 failed: No messages found in logs"
             exit 1
           fi
+          
+
+      - name: Start eCAL-Runtime-Container
+        run: docker run --rm -it --name ecal-runtime --ipc=host --network=host --pid=host -h=host1 ecal-runtime
+      - name: Test Ping Container via eCAL-Runtime-Container
+        run: |
+          docker exec runtime-container ping -c 2 publisher-container
+          docker exec runtime-container ping -c 2 subscriber-container
 
       - name: Stop Containers
         run: |
@@ -70,3 +66,8 @@ jobs:
           else
             echo "Test1 passed: Messages received in logs"
           fi
+
+      - name: Stop Containers
+        run: |
+          docker stop publisher-container
+          docker stop subscriber-container
