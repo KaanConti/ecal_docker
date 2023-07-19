@@ -13,11 +13,11 @@ int main(int argc, char** argv)
     eCAL::string::CPublisher<std::string> publisher("hello_world_topic");
 
     // Create a counter, so something changes in our message
-    int counter = 0;
 
+    int counter = 0;
     // Infinite loop (using eCAL::Ok() will enable us to gracefully shutdown the
     // Process from another application)
-    while (eCAL::Ok() && counter<5)
+    while (eCAL::Ok())
     {
 
         // Create a message with a counter an publish it to the topic

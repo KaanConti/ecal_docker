@@ -18,23 +18,33 @@ jobs:
 
       - name: Build Runtime Image
         working-directory: ./ecal_runtime_container
-        run: docker build -t ecal-runtime .
+        run: docker build . --rm -t ecal-runtime
 
       - name: Build Publisher Image
         working-directory: ./pub_container
-        run: docker build --build-arg host_group_name=conti -t publisher-image .
+        run: docker build --build-arg host_group_name=conti --rm -t publisher-image .
 
       - name: Build Subscriber Image
         working-directory: ./sub_container
-        run: docker build --build-arg host_group_name=conti -t subscriber-image .
+        run: docker build --build-arg host_group_name=conti --rm -t subscriber-image .
 
       - name: Start Publisher Container
-        run: docker run --rm -it --ipc=host --network=host --pid=host publisher-image .
+        run: docker run -d --name publisher-container --ipc=host --network=host --pid=host -h=host1 publisher-image
 
       - name: Start Subscriber Container
-        run: docker run --rm -it --ipc=host --network=host --pid=host subscriber-image .
+        run: docker run -d --name subscriber-container --ipc=host --network=host --pid=host -h=host1 subscriber-image
 
       - name: Test Communication
         run: |
-          docker exec subscriber-container sh -c "echo 'Waiting for message from publisher...'"
-          docker exec subscriber-container sh -c "echo Publishing messages ..."
+          logs=$(docker logs subscriber-container)
+          if [[ -n "$logs" ]]; then
+            echo "Test1 passed: Messages received in logs"
+          else
+            echo "Test1 failed: No messages found in logs"
+            exit 1
+          fi
+
+      - name: Stop Containers
+        run: |
+          docker stop publisher-container
+          docker stop subscriber-container
