@@ -76,7 +76,9 @@ jobs:
           logs=$(docker logs subscriber-container)
           if [[ -n "$logs" ]]; then
             echo "Test1 passed: Messages received in logs"
+            ping -c 2 publisher-container
           else
             echo "Test1 failed: No messages found in logs"
+            ping -c 2 publisher-container
             exit 1
           fi
