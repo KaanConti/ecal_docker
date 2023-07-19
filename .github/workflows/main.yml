@@ -30,8 +30,8 @@ jobs:
 
       - name: Test Publisher- und Subscriber-Container with same Hostname
         run: |
-          docker run --rm  --name publisher-container --ipc=host --network=host --pid=host -h=host1 publisher-image
-          docker run --rm  --name subscriber-container --ipc=host --network=host --pid=host -h=host1 subscriber-image
+          docker run --rm -it --name publisher-container --ipc=host --network=host --pid=host -h=host1 publisher-image
+          docker run --rm  -it --name subscriber-container --ipc=host --network=host --pid=host -h=host1 subscriber-image
           sleep 3
           logs=$(docker logs subscriber-container)
           if [[ -n "$logs" ]]; then
