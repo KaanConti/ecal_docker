@@ -46,8 +46,8 @@ jobs:
         run: docker run -d --name ecal-runtime --ipc=host --network=host --pid=host -h=host1 ecal-runtime
       - name: Test Ping Container via eCAL-Runtime-Container
         run: |
-          docker exec runtime-container ping -c 2 publisher-container
-          docker exec runtime-container ping -c 2 subscriber-container
+          docker exec ecal-container ping -c 2 publisher-container
+          docker exec ecal-container ping -c 2 subscriber-container
 
       - name: Stop Containers
         run: |
