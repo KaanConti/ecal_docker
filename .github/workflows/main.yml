@@ -34,6 +34,9 @@ jobs:
       - name: Start Subscriber Container
         run: docker run -d --name subscriber-container --ipc=host --network=host --pid=host -h=host1 subscriber-image
 
+      - name: Wait before checking logs
+        run: sleep 3
+
       - name: Test Communication
         run: |
           logs=$(docker logs subscriber-container)
