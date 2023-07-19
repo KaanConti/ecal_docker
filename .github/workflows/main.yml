@@ -28,7 +28,7 @@ jobs:
         working-directory: ./sub_container
         run: docker build --build-arg host_group_name=conti --rm -t subscriber-image .
 
-      - name: Test Publisher- und Subscriber-Container with same Hostname
+      - name: Test1 Publisher- und Subscriber-Container with same Hostname
         run: |
           docker run --rm -d --name publisher-container --ipc=host --network=host --pid=host -h=host1 publisher-image
           docker run --rm  -d --name subscriber-container --ipc=host --network=host --pid=host -h=host1 subscriber-image
@@ -53,17 +53,17 @@ jobs:
           docker stop subscriber-container
           docker stop ecal-runtime
 
-      - name: Test Different Hostname
+      - name: Test2 Different Hostname
         run: |
-          docker run --rm -it --name publisher-container --ipc=host --network=host --pid=host -h=host publisher-image
-          docker run --rm -it --name subscriber-container --ipc=host --network=host --pid=host -h=host1 subscriber-image
+          docker run --rm -d --name publisher-container --ipc=host --network=host --pid=host -h=host1 publisher-image
+          docker run --rm  -d --name subscriber-container --ipc=host --network=host --pid=host -h=host subscriber-image
           sleep 3
           logs=$(docker logs subscriber-container)
           if [[ -n "$logs" ]]; then
-            echo "Test1 failed: No messages found in logs"
+            echo "Test2 failed: Communication was be able, but should not happen."
             exit 1
           else
-            echo "Test1 passed: Messages received in logs"
+            echo "Test1 passed: No Communication"
           fi
 
       - name: Stop Containers
