@@ -20,25 +20,31 @@ jobs:
         working-directory: ./ecal_runtime_container
         run: docker build . --rm -t ecal-runtime
 
-      - name: Build Publisher Image
+      - name: Build Publisher Image for Test1
         working-directory: ./pub_container
         run: docker build --build-arg host_group_name=conti --rm -t publisher-image .
 
-      - name: Build Subscriber Image
+      - name: Build Subscriber Image for Test1
         working-directory: ./sub_container
         run: docker build --build-arg host_group_name=conti --rm -t subscriber-image .
 
-      - name: Start Publisher Container
-        run: docker run -d --name publisher-container --ipc=host --network=host --pid=host -h=host1 publisher-image
+      - name: Start Publisher Container T1
+        run: docker run --rm -it --name publisher-container --ipc=host --network=host --pid=host -h=host1 publisher-image
 
-      - name: Start Subscriber Container
-        run: docker run -d --name subscriber-container --ipc=host --network=host --pid=host -h=host1 subscriber-image
+      - name: Start Subscriber Container T1
+        run: docker run --rm -it --name subscriber-container --ipc=host --network=host --pid=host -h=host1 subscriber-image
 
-      - name: Wait before checking logs
-        run: sleep 3
-
-      - name: Test Communication
+      - name: Test Ping Container über runtime container
         run: |
+          docker exec runtime-container ping -c 5 publisher-container
+          docker exec runtime-container ping -c 5 subscriber-container
+
+      - name: Ping Subscriber from Runtime Container
+        run: docker exec runtime-container ping -c 5 subscriber-container
+
+      - name: Test Gleicher Hostname
+        run: |
+          sleep 3
           logs=$(docker logs subscriber-container)
           if [[ -n "$logs" ]]; then
             echo "Test1 passed: Messages received in logs"
@@ -51,3 +57,16 @@ jobs:
         run: |
           docker stop publisher-container
           docker stop subscriber-container
+
+      - name: Test2 Unterschiedlicher Hostname
+        run: |
+          docker run --rm -it --name publisher-container --ipc=host --network=host --pid=host -h=host publisher-image
+          docker run --rm -it --name subscriber-container --ipc=host --network=host --pid=host -h=host1 subscriber-image
+          sleep 3
+          logs=$(docker logs subscriber-container)
+          if [[ -n "$logs" ]]; then
+            echo "Test1 failed: No messages found in logs"
+            exit 1
+          else
+            echo "Test1 passed: Messages received in logs"
+          fi
