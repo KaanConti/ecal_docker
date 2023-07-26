@@ -33,6 +33,9 @@ RUN echo $host_group_name
 RUN apt-get update && apt-get install -y vim
 RUN apt-get update && apt-get install -y iputils-ping
 
-
+# Install iproute2 package
+RUN apt-get update && \
+    apt-get install -y iproute2 && \
+    rm -rf /var/lib/apt/lists/* \
 # Print the eCAL config
 RUN ecal_config
